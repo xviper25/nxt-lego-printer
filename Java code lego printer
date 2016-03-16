@@ -1,0 +1,113 @@
+import java.awt.Point;
+
+import lejos.nxt.LCD;
+import lejos.nxt.Motor;
+
+public class Lego {
+
+	static int posX = 0;
+	static int posY = 0;
+	static int lx = 10000;
+	static int ly = 10000;
+	static int cx = 76;
+	static int cy = 50;
+	static boolean penDown = false;
+
+	public static void main(String[] args) throws InterruptedException {
+		int[] p = { }; // Coordinates go here
+		Motor.C.setSpeed(250);
+		Motor.B.setSpeed(250);
+		Motor.A.setSpeed(50);
+
+		LCD.drawString("HEJ - " + p.length, 0, 0);
+
+
+		for (int i = 0; i < p.length; i += 2) {
+			cx = p[i];
+			cy = p[i + 1];
+
+			if (cy == ly + 1 && cx == lx) {
+				if (!penDown) {
+					PenMove(2);
+				}
+			}
+			else{
+				if(penDown){
+					PenMove(1);
+				}
+				
+			}
+			
+			LCD.clear();
+			LCD.drawString("X - " + cx + ":" + lx, 0, 0);
+			LCD.drawString("Y - " + cy + ":" + ly, 0, 1);
+
+			GoTo(p[i], p[i + 1]);
+
+			if (!penDown) {
+				PenMove(2);
+			}
+			
+			lx = cx;
+			ly = cy;
+		}
+		GoTo(76, 50);
+
+		// TODO Auto-generated method stub
+		// Motor.B.setSpeed(400);
+		// Motor.C.setSpeed(100);
+		// Motor.B.forward();
+		// Motor.C.forward();
+		// Thread.sleep(1000);
+		// Motor.B.stop();
+		// Motor.C.stop();
+		// Motor.B.rotateTo( -720);
+		// Motor.B.rotate(-260);
+		// Motor.B.rotate(-100);
+		// Motor.B.rotate(-720,true);
+		// Motor.C.rotate(720);
+		// while(Motor.B.isMoving()) {
+		// Thread.yield();
+		// }
+		// int angle = Motor.B.getTachoCount(); // should be -360
+		// LCD.drawInt(angle,0,0);
+
+		// Motor.A.rotate(-70);
+
+	}
+
+	static void GoTo(int x, int y) throws InterruptedException {
+		int desX = ((x * 5) - 380);
+		int desY = ((y * 5) - 250);
+		
+		if (Math.abs(desX - posX) > Math.abs(posY - desY)) {
+			Motor.B.rotate((posY - desY), true);
+			Motor.C.rotate(desX - posX);
+		} else {
+			Motor.C.rotate(desX - posX, true);
+			Motor.B.rotate((posY - desY));
+		}
+		
+		posX = desX;
+		posY = desY;
+	}
+
+	static void PenMove(int x) throws InterruptedException { // 1 = upp. 2= ner
+		if (x == 1) {
+			Motor.A.rotate(-40);
+			penDown = false;
+		}
+		if (x == 2) {
+			Motor.A.rotate(40);
+			penDown = true;
+		}
+	}
+
+	static void Origo() throws InterruptedException {
+		Motor.C.rotate(-posX, true);
+		Motor.B.rotate(-posY, true);
+		Thread.sleep(5000);
+		posX = 0;
+		posY = 0;
+	}
+}
